@@ -26,6 +26,8 @@ THE SOFTWARE.
 
 #include "libcgc.h"
 #include "cgc_libc.h"
+#include <sanitizer/dfsan_interface.h>
+
 
 // Receive until 'length' chars cgc_read OR 'end' char found OR newline. Up to 'length'
 // chars written to 'dest', including 'end' char.  
@@ -37,10 +39,15 @@ int cgc_receive_until(char *dest, cgc_size_t length, char end, cgc_size_t *bytes
 	char c;
 	int receive_status;
 	cgc_size_t receive_bytes;
-
+	
 	do 
 	{
 		receive_status = cgc_receive( STDIN , (void *)&c, 1, &receive_bytes);
+		
+		float init = 1.0;
+		dfsan_label input_lbl = dfsan_create_label("input_char", init);	
+		dfsan_set_label(input_lbl, &c, sizeof(c));	
+
 		if ((receive_status != 0) || (receive_bytes != 1))
 		{
 			if (bytes_read != NULL) *bytes_read = count;

@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "libcgc.h"
 #include "cgc_libc.h"
 #include "cgc_timecard.h"
+#include <sanitizer/dfsan_interface.h>
 
 // Converts a char string into a money struct. 
 void cgc_atom(pmoney amount, char *str)
@@ -407,9 +408,18 @@ int cgc_get_key_value(char *inbuf, cgc_size_t length, char **key, char **value)
 // See merge_employee_records for proper usage of key/value pairs
 void cgc_process_key_value(pemployee empl, char *key, char *value, int *week)
 {
+	dfsan_label value_lbl = dfsan_get_label((long) *value);
+	struct dfsan_label_info *value_info = dfsan_get_label_info(value_lbl);
+        printf("\n value == 1 ?\n pos %f, neg: %f \n \n ", value_info->pos_dydx, value_info->neg_dydx);
+	
 	if (cgc_equals(key, "employee_id"))
 	{
 		empl->id = cgc_atoi(value);
+		
+		dfsan_label emplid_lbl = dfsan_get_label((long) empl->id);
+		const struct dfsan_label_info *emplid_info = dfsan_get_label_info(emplid_lbl);
+                printf("\n empl->id > 1 ?\n pos %f, neg: %f \n \n ", emplid_info->pos_dydx, emplid_info->neg_dydx);
+
 	}
 	if (cgc_equals(key, "employee_name"))
 	{
