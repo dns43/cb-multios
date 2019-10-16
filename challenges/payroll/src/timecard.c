@@ -420,6 +420,7 @@ void cgc_process_key_value(pemployee empl, char *key, char *value, int *week)
 		const struct dfsan_label_info *emplid_info = dfsan_get_label_info(emplid_lbl);
                 printf("\n empl->id > 1 ?\n pos %f, neg: %f \n \n ", emplid_info->pos_dydx, emplid_info->neg_dydx);
 
+		
 	}
 	if (cgc_equals(key, "employee_name"))
 	{
@@ -562,8 +563,13 @@ void cgc_process_query(int query, employee *employee_list, pemployee temp, int w
 			break;
 		}
 		case QUERY_WEEK:
+		{
 #ifndef PATCHED
 			// Ignore unregistered slots
+			dfsan_label tmpid_lbl = dfsan_get_label((long) &employee_list[temp->id]);
+			const struct dfsan_label_info *tmpid_info = dfsan_get_label_info(tmpid_lbl);
+	                printf("\n temp->id > 1 ?\n pos %f, neg: %f \n \n ", tmpid_info->pos_dydx, tmpid_info->neg_dydx);
+	
 			if (employee_list[temp->id].id == -1)
 				break;
 #endif 
@@ -579,6 +585,7 @@ void cgc_process_query(int query, employee *employee_list, pemployee temp, int w
 				cgc_output_paycheck(&employee_list[temp->id], week);
 			}
 			break;
+		}
 		case QUERY_WEEK_ALL:
 		{
 			int employee;
