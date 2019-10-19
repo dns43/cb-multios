@@ -566,13 +566,22 @@ void cgc_process_query(int query, employee *employee_list, pemployee temp, int w
 		{
 #ifndef PATCHED
 			// Ignore unregistered slots
-			dfsan_label tmpid_lbl = dfsan_get_label((long) &employee_list[temp->id]);
+			dfsan_label tmpid_lbl = dfsan_get_label((long) temp->id);
 			const struct dfsan_label_info *tmpid_info = dfsan_get_label_info(tmpid_lbl);
 	                printf("\n temp->id > 1 ?\n pos %f, neg: %f \n \n ", tmpid_info->pos_dydx, tmpid_info->neg_dydx);
 	
 			if (employee_list[temp->id].id == -1)
-				break;
-#endif 
+			{
+			//dfsan_label tmpid_lbl = dfsan_get_label((long) &employee_list[temp->id]);
+			//const struct dfsan_label_info *tmpid_info = dfsan_get_label_info(tmpid_lbl);
+	                //printf("\n temp->id > 1 ?\n pos %f, neg: %f \n \n ", tmpid_info->pos_dydx, tmpid_info->neg_dydx);
+		}
+#endif
+		       
+			//dfsan_label tmpid_lbl = dfsan_get_label((long) &employee_list[temp->id]);
+			//const struct dfsan_label_info *tmpid_info = dfsan_get_label_info(tmpid_lbl);
+	                //printf("\n temp->id > 1 ?\n pos %f, neg: %f \n \n ", tmpid_info->pos_dydx, tmpid_info->neg_dydx);
+
 
 			if ((temp->id >= 0) && (temp->id < NUMBER_OF_EMPLOYEES)
 				&& (week >= 0) && (week < WEEKS_IN_A_YEAR))
