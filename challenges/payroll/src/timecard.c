@@ -569,7 +569,9 @@ void cgc_process_query(int query, employee *employee_list, pemployee temp, int w
 			dfsan_label tmpid_lbl = dfsan_get_label((long) temp->id);
 			const struct dfsan_label_info *tmpid_info = dfsan_get_label_info(tmpid_lbl);
 	                printf("\n temp->id > 1 ?\n pos %f, neg: %f \n \n ", tmpid_info->pos_dydx, tmpid_info->neg_dydx);
-	
+			dfsan_label empllistelt_lbl = dfsan_get_label(&employee_list[temp->id]);
+			const struct dfsan_label_info *empllistelt_info = dfsan_get_label_info(empllistelt_lbl);
+	                printf("\n temp->id > 1 ?\n pos %f, neg: %f \n \n ", empllistelt_info->pos_dydx, empllistelt_info->neg_dydx);
 			if (employee_list[temp->id].id == -1)
 			{
 			//dfsan_label tmpid_lbl = dfsan_get_label((long) &employee_list[temp->id]);

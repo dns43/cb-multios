@@ -16,6 +16,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <err.h>
+#include <sanitizer/dfsan_interface.h>
+
+
+
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) < (b)) ? (b) : (a))
@@ -43,12 +47,27 @@ int cgc_transmit(int fd, const void *buf, cgc_size_t count, cgc_size_t *tx_bytes
 int cgc_receive(int fd, void *buf, cgc_size_t count, cgc_size_t *rx_bytes) {
     const cgc_ssize_t ret = read(fd, buf, count);
 
+	float init = 1.0;
+	dfsan_label lbla = dfsan_create_label("input_char", init); 
+	dfsan_set_label(lbla, buf, sizeof(char));
+/*
+	dfsan_label lblb = dfsan_create_label("&buf", init); 
+	dfsan_set_label(lblb, &buf, sizeof(char));
+
+	//dfsan_label albl = dfsan_get_label(buf); 
+	const struct dfsan_label_info *info = dfsan_get_label_info(lblb); 
+	printf("\n In Function \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
+*/
+
     if (ret < 0) {
         return errno;
     } else if (rx_bytes != NULL) {
         *rx_bytes = ret;
     }
-
+/*
+	dfsan_label lbl = dfsan_create_label("rx_char", init); 
+	dfsan_set_label(lbl, rx_bytes, sizeof(rx_bytes));
+*/
     return 0;
 }
 
