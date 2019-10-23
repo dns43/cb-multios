@@ -22,6 +22,7 @@
 
 #include "cgc_editor.h"
 #include "cgc_regex.h"
+#include <sanitizer/dfsan_interface.h>
 
 struct line {
     struct list_node list;
@@ -55,13 +56,22 @@ static struct {
 static struct line *
 cgc_get_line_by_address(int address)
 {
+	dfsan_label lbla = dfsan_get_label(address);
+	struct dfsan_label_info *infoa = dfsan_get_label_info(lbla);
+	printf("\n pos %f, neg %f \n", infoa->pos_dydx, infoa->neg_dydx);
     struct list_node *cur = state.line_list.head;
-
+/*
 #ifdef PATCHED_1
     if (address < 0 && address >= DOLLAR_MARK)
 #else
     if (address < 0)
-#endif
+#endif*/
+	printf("\n dies here \n");
+	//dfsan_label lbl = dfsan_get_label(&state.marks[-address-1]);
+	//struct dfsan_label_info *info = dfsan_get_label_info(lbl);
+	//printf("\n pos %f, neg %f \n", info->pos_dydx, info->neg_dydx);
+
+	
         return state.marks[-address - 1];
 
     while (cur && address--)
@@ -575,6 +585,9 @@ cgc_touppercase_transform(unsigned int c, void *data)
 int
 cgc_run_command(struct command *command, struct result **result)
 {
+    float init = 1.0;
+    dfsan_label lbla = dfsan_create_label("struct", init);
+    dfsan_set_label(lbla, &(command->start), sizeof(command->start));
     *result = NULL;
 
     switch (command->command) {
