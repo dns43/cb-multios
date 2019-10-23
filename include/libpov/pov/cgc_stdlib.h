@@ -4,6 +4,7 @@
 #define __GC_STDLIB_H
 
 #include "cgc_types.h"
+//#include "libcgc.h"
 
 void *cgc_malloc(cgc_size_t size);
 void *cgc_realloc(void *ptr, cgc_size_t size);

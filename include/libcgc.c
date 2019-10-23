@@ -13,10 +13,10 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/select.h>
-#include <sys/types.h>
+//#include <sys/types.h>
 #include <unistd.h>
 #include <err.h>
-#include <sanitizer/dfsan_interface.h>
+//#include <sanitizer/dfsan_interface.h>
 
 
 
@@ -42,6 +42,11 @@ int cgc_transmit(int fd, const void *buf, cgc_size_t count, cgc_size_t *tx_bytes
 
     return 0;
 }
+
+typedef uint16_t dfsan_label;
+dfsan_label dfsan_create_label(const char *, float); 
+void dfsan_set_label(dfsan_label, void *, unsigned long);
+
 
 /* Receives data from another CGC process. */
 int cgc_receive(int fd, void *buf, cgc_size_t count, cgc_size_t *rx_bytes) {

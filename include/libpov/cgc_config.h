@@ -130,7 +130,7 @@ sure both macros are undefined; an emulation function will then be used. */
 /* #undef HAVE_SYS_STAT_H */
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-/* #undef HAVE_SYS_TYPES_H */
+#undef HAVE_SYS_TYPES_H 
 
 /* Define to 1 if you have the <type_traits.h> header file. */
 /* #undef HAVE_TYPE_TRAITS_H */
@@ -347,4 +347,4 @@ sure both macros are undefined; an emulation function will then be used. */
 /* #undef int64_t */
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
-/* #undef cgc_size_t */
+#undef cgc_size_t 

@@ -4,6 +4,7 @@
 #define __GC_STRING_H
 
 #include "cgc_types.h"
+//#include "libcgc.h"
 
 void *cgc_memcpy(void *dst, const void *src, cgc_size_t len);
 int cgc_memcmp(const void *b1, const void *b2, cgc_size_t n);
