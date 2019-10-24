@@ -1,0 +1,2 @@
+python -c 'print("5"*511)' | challenges/Glue/Glue
+

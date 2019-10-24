@@ -155,31 +155,46 @@ void cgc_reverse(char* s)
 
 cgc_size_t cgc_read_ascii_octal(char* buf, int size, int* err)
 {
+
+
+dfsan_label lblu = dfsan_get_label(*buf); const struct dfsan_label_info *infou = dfsan_get_label_info(lblu); printf("\n In read ascii octal \n pos %f, neg: %f \n \n ", infou->pos_dydx, infou->neg_dydx);
   cgc_size_t val = 0;
   char* tmp = cgc_xcalloc(size, 1);
   for (cgc_size_t i = 0; i < size - 1; i++)
     tmp[i] = buf[i];
+
+  dfsan_label lblt = dfsan_get_label(*tmp); const struct dfsan_label_info *infot = dfsan_get_label_info(lblt); printf("\n In read ascii octal tmp \n pos %f, neg: %f \n \n ", infot->pos_dydx, infot->neg_dydx);
   cgc_reverse(tmp);
 
+  dfsan_label lbls = dfsan_get_label(*tmp); const struct dfsan_label_info *infos = dfsan_get_label_info(lbls); printf("\n In read ascii octal tmp after reverse \n pos %f, neg: %f \n \n ", infos->pos_dydx, infos->neg_dydx);
+  dfsan_label lbld = dfsan_get_label(tmp[1]); const struct dfsan_label_info *infod = dfsan_get_label_info(lbld); printf("\n In read ascii octal tmp[1] \n pos %f, neg: %f \n \n ", infod->pos_dydx, infod->neg_dydx);
+  printf("\n AAA %d \n", size);
   for (cgc_size_t i = 0; i < size - 1; i++)
   {
-    if (!tmp[i])
-      break;
+	  //tmp[i] = tmp[i]-91;
+	  printf("\n BBB %d %d %d\n", size,i,tmp[i]);
+	  if (!tmp[i])
+		  break;
 
-    if (!(tmp[i] >= '0' && tmp[i] <= '7'))
-    {
-      if (err)
-        *err = 1;
-      break;
-    }
+	printf("test\n");
+	  if (!(tmp[i] >= '0' && tmp[i] <= '7'))
+	  {
+		printf("test %d \n", tmp[i]);
+		  if (err)
+			  *err = 1;
+		  break;
+	  }
+	printf("test\n");
 
-    cgc_size_t x = 1;
-    for (cgc_size_t j = 0; j < i; j++)
-      x *= 8;
-
-    val += x * (tmp[i] - 0x30);
+	  cgc_size_t x = 1;
+	  for (cgc_size_t j = 0; j < i; j++){
+		  x *= 8;
+	  }
+	  val += x * (tmp[i] - 0x30);
+	  //dfsan_label lbli = dfsan_get_label(tmp[i]); const struct dfsan_label_info *infoi = dfsan_get_label_info(lbli); printf("\n In read ascii octal tmp[i] \n pos %f, neg: %f \n \n ", infoi->pos_dydx, infoi->neg_dydx);
   }
 
+  dfsan_label lblv = dfsan_get_label(val); const struct dfsan_label_info *infov = dfsan_get_label_info(lblv); printf("\n In read ascii octal val\n pos %f, neg: %f \n \n ", infov->pos_dydx, infov->neg_dydx);
   return val;
 }
 
@@ -217,10 +232,17 @@ const char* cgc_get_user_code(int uid, int gid)
     return "No user info";
 #endif
 
-dfsan_label lbl = dfsan_get_label(&user_codes[uid * gid]); 
+dfsan_label lbl = dfsan_get_label(user_codes[uid * gid]); 
 const struct dfsan_label_info *info = dfsan_get_label_info(lbl); 
 printf("\n Array Overread \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
 
+lbl = dfsan_get_label(uid * gid); 
+info = dfsan_get_label_info(lbl); 
+printf("\n Array Overread \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
+
+lbl = dfsan_get_label((char *) &user_codes[uid * gid]); 
+info = dfsan_get_label_info(lbl); 
+printf("\n Array Overread \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
 
   return (char *)&user_codes[uid * gid];
 }
@@ -257,6 +279,9 @@ void cgc_print_entry(glue_t* block)
   cgc_printf("    uid:\t\t%d\n", cgc_read_ascii_octal(block->uid, 8, NULL));
   cgc_printf("    gid:\t\t%d\n", cgc_read_ascii_octal(block->gid, 8, NULL));
   cgc_printf("    user_code:\t\t");
+dfsan_label lblg = dfsan_get_label(*block->gid); const struct dfsan_label_info *infog = dfsan_get_label_info(lblg); printf("\n In Function gid \n pos %f, neg: %f \n \n ", infog->pos_dydx, infog->neg_dydx);
+dfsan_label lblu = dfsan_get_label(*block->uid); const struct dfsan_label_info *infou = dfsan_get_label_info(lblu); printf("\n In Function uid \n pos %f, neg: %f \n \n ", infou->pos_dydx, infou->neg_dydx);
+
   cgc_sent_n(1, (char *)cgc_get_user_code(cgc_read_ascii_octal(block->uid, 8, NULL), cgc_read_ascii_octal(block->gid, 8, NULL)), 4, NULL);
   cgc_printf("\n");
   cgc_printf("    size:\t\t%d\n", cgc_read_ascii_octal(block->f_size, 12, NULL));
@@ -326,43 +351,64 @@ int main(int cgc_argc, char *cgc_argv[]) {
 
   for (;;)
   {
-    if (cgc_read_n(STDIN, block_buf, BLOCK_SIZE, &err) != BLOCK_SIZE || err)
-      	printf("fuck\n\n");
-	break;
+	  if (cgc_read_n(STDIN, block_buf, BLOCK_SIZE, &err) != BLOCK_SIZE || err){
+		  break;
+	  }
+	  if (cgc_empty_block(block_buf))
+	  {
+		  empty_cnt++;
+		  if (empty_cnt == 2)
+			  break;
+		  else
+			  continue;
+	  }
+	  else{
+		  empty_cnt = 0;
+	  }
 
-    if (cgc_empty_block(block_buf))
-    {
-      empty_cnt++;
-      if (empty_cnt == 2)
-        break;
-      else
-        continue;
-    }
-    else
-      empty_cnt = 0;
+	  dfsan_label lblb = dfsan_get_label(block_buf); 
+	  const struct dfsan_label_info *infob = dfsan_get_label_info(lblb); 
+	  printf("\n block_buf \n pos %f, neg: %f \n \n ", infob->pos_dydx, infob->neg_dydx);
+	  
+	  glue_t* block = cgc_initialize(block_buf);
 
-		dfsan_label lblb = dfsan_get_label(block_buf); 
-		const struct dfsan_label_info *infob = dfsan_get_label_info(lblb); 
-		printf("\n block_buf \n pos %f, neg: %f \n \n ", infob->pos_dydx, infob->neg_dydx);
-    glue_t* block = cgc_initialize(block_buf);
+	  dfsan_label lbla = dfsan_get_label(block->uid); 
+	  const struct dfsan_label_info *infoa = dfsan_get_label_info(lbla); 
+	  printf("\n block uid\n pos %f, neg: %f \n \n ", infoa->pos_dydx, infoa->neg_dydx);
+
+	  dfsan_label lblc = dfsan_get_label(block->gid); 
+	  const struct dfsan_label_info *infoc = dfsan_get_label_info(lblc); 
+	  printf("\n block gid\n pos %f, neg: %f \n \n ", infoc->pos_dydx, infoc->neg_dydx);
+	      
+	  float init = 1.0;
+	  dfsan_label lblu = dfsan_create_label("uid_lbl", init);
+	  dfsan_set_label(lblu, &block->uid, sizeof(block->uid));
+
+	  dfsan_label lblg = dfsan_create_label("gid_lbl", init);
+	  dfsan_set_label(lblg, &block->gid, sizeof(block->gid));
+
+	  dfsan_label lblq = dfsan_get_label(*block->uid); 
+	  const struct dfsan_label_info *infoq = dfsan_get_label_info(lblq); 
+	  printf("\n block uid\n pos %f, neg: %f \n \n ", infoq->pos_dydx, infoq->neg_dydx);
+
+	  dfsan_label lblh = dfsan_get_label(*block->gid); 
+	  const struct dfsan_label_info *infoh = dfsan_get_label_info(lblh); 
+	  printf("\n block gid\n pos %f, neg: %f \n \n ", infoh->pos_dydx, infoh->neg_dydx);
+
+	  cgc_print_entry(block);
+
+	  cgc_ssize_t block_size = cgc_read_ascii_octal(block->f_size, 12, &err);
 	
-		dfsan_label lbla = dfsan_get_label(block->uid); 
-		const struct dfsan_label_info *infoa = dfsan_get_label_info(lbla); 
-		printf("\n block \n pos %f, neg: %f \n \n ", infoa->pos_dydx, infoa->neg_dydx);
-		
-		dfsan_label lblc = dfsan_get_label(block->gid); 
-		const struct dfsan_label_info *infoc = dfsan_get_label_info(lblc); 
-		printf("\n block \n pos %f, neg: %f \n \n ", infoc->pos_dydx, infoc->neg_dydx);
-    cgc_print_entry(block);
+	  if (err){
+		  break;
+		}
 
-    cgc_ssize_t block_size = cgc_read_ascii_octal(block->f_size, 12, &err);
-    if (err)
-      break;
+	  cgc_skip_data(STDIN, block_size, &err);
+	  if (err)
+	  {
+		  break;
+	}
 
-    cgc_skip_data(STDIN, block_size, &err);
-    if (err)
-      break;
-
-    cgc_free(block);
+	  cgc_free(block);
   }
 }

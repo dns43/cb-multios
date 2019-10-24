@@ -58,7 +58,7 @@ cgc_get_line_by_address(int address)
 {
 	dfsan_label lbla = dfsan_get_label(address);
 	struct dfsan_label_info *infoa = dfsan_get_label_info(lbla);
-	printf("\n pos %f, neg %f \n", infoa->pos_dydx, infoa->neg_dydx);
+	printf("\n address os %f, neg %f \n", infoa->pos_dydx, infoa->neg_dydx);
     struct list_node *cur = state.line_list.head;
 /*
 #ifdef PATCHED_1
@@ -70,9 +70,14 @@ cgc_get_line_by_address(int address)
 	//dfsan_label lbl = dfsan_get_label(&state.marks[-address-1]);
 	//struct dfsan_label_info *info = dfsan_get_label_info(lbl);
 	//printf("\n pos %f, neg %f \n", info->pos_dydx, info->neg_dydx);
-
+	address = -address-1;
+	dfsan_label lbls = dfsan_get_label(address); const struct dfsan_label_info *infos = dfsan_get_label_info(lbls); printf("\n In Function \n pos %f, neg: %f \n \n ", infos->pos_dydx, infos->neg_dydx);
+        printf("tricky");
 	
-        return state.marks[-address - 1];
+	//dfsan_label lbl = dfsan_get_label(state.marks[address]); const struct dfsan_label_info *info = dfsan_get_label_info(lbl); printf("\n In Function \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
+	
+	printf("\n survived label print\n");
+        return state.marks[address];
 
     while (cur && address--)
         cur = cur->next;
