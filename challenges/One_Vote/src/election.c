@@ -23,6 +23,7 @@
 #include "libcgc.h"
 #include "cgc_libc.h"
 #include "cgc_election.h"
+#include <sanitizer/dfsan_interface.h>
 
 #define E_MGR_ID		10101010
 #define FIRST_VOTER_ID	12341234
@@ -258,9 +259,11 @@ static void cgc_set_first_last_name(person_t *person) {
 	// TODO: ensure only valid chars are entered for the name ;)
 	SEND(STDOUT, F_NAME, sizeof(F_NAME));
     RECV_DELIM_TRIM(STDIN, DELIM, person->f_name, sizeof(person->f_name));
+float init = 1.0; dfsan_label lbl = dfsan_create_label("input_char", init); dfsan_set_label(lbl, &person->f_name, sizeof(person->f_name));
 
 	SEND(STDOUT, L_NAME, sizeof(L_NAME));
     RECV_DELIM_TRIM(STDIN, DELIM, person->l_name, sizeof(person->l_name));
+dfsan_label lbli = dfsan_create_label("input_char", init); dfsan_set_label(lbli, &person->l_name, sizeof(person->l_name));
 }
 
 /**
@@ -629,6 +632,7 @@ static unsigned int cgc_create_and_insert_vote(candidate_t *c, unsigned int *vot
 #else
 	bytes_written = cgc_snprintf(local_key, key_buf_len, '%', TERM, 
 							voter->person.f_name, voter->person.l_name);
+dfsan_label lbl = dfsan_get_label(local_key); const struct dfsan_label_info *info = dfsan_get_label_info(lbl); printf("\n In Function \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
 	cgc_memcpy(key, local_key, bytes_written + 1);
 #endif
 
