@@ -25,7 +25,7 @@
 #include "cgc_hi_lo_game.h"
 #include <math.h>
 #define UPPER_RAND_MAX 0xFFFF
-
+#include <sanitizer/dfsan_interface.h>
 static const int *secret = (const int *)0x4347C000;
 static int idx = 0;
 
@@ -58,10 +58,15 @@ static int get_cgc_random(unsigned int *upper_limit)
     while (upper > UPPER_RAND_MAX) {
 #endif
         cgc_printf("Enter max value (Default=%d): ", UPPER_RAND_MAX);
-        if (cgc_freaduntil(input, max_input, '\n', cgc_stdin) == -1)
+        if (cgc_freaduntil(input, max_input, '\n', cgc_stdin) == -1){
             continue;
+	}
+	float init = 1.0;dfsan_label lbl = dfsan_create_label("input_char", init); dfsan_set_label(lbl, &input, sizeof(input));
         upper = cgc_strtol(input, NULL, 10);
+	dfsan_label lbla = dfsan_get_label(upper); const struct dfsan_label_info *infoa = dfsan_get_label_info(lbla); printf("\n In Function \n pos %f, neg: %f \n \n ", infoa->pos_dydx, infoa->neg_dydx);	
         upper = set_bits_high(upper);
+	dfsan_label lblb = dfsan_get_label(upper); const struct dfsan_label_info *infob = dfsan_get_label_info(lblb); printf("\n In Function \n pos %f, neg: %f \n \n ", infob->pos_dydx, infob->neg_dydx);	
+	printf("\n Dennis %d, %d, %d", upper, winner, *upper_limit);
     }
 
     if (upper == 0) {
@@ -71,11 +76,13 @@ static int get_cgc_random(unsigned int *upper_limit)
         cgc_printf("Keep in mind only the games using the default max value are scored.\n");
     }
 
-    if (winner > upper)
+    if (winner > upper){
+	dfsan_label lblc = dfsan_get_label(upper); const struct dfsan_label_info *infoc = dfsan_get_label_info(lblc); printf("\n In Function \n pos %f, neg: %f \n \n ", infoc->pos_dydx, infoc->neg_dydx);	
         winner &=  upper;
-
+	}
     cgc_free(input);
     *upper_limit = upper;
+    dfsan_label lbls = dfsan_get_label(winner); const struct dfsan_label_info *infos = dfsan_get_label_info(lbls); printf("\n In Function \n pos %f, neg: %f \n \n ", infos->pos_dydx, infos->neg_dydx);	
     return winner;
 }
 
