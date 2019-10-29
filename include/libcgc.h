@@ -16,7 +16,8 @@
 # define __builtin_isinf(x) (! _finite(x))
 #endif
 
-typedef unsigned long cgc_size_t;
+//typedef unsigned long cgc_size_t;
+typedef unsigned int cgc_size_t;
 typedef unsigned int  cgc_ssize_t;
 
 // This is for challenges that define C++ operators and need to know std::size_t
