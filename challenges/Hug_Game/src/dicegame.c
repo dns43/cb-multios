@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include "cgc_libc.h"
 #include "cgc_gamestate.h"
 #include "cgc_utility.h"
+#include <sanitizer/dfsan_interface.h>
 
 extern gamestate *state;
 
@@ -47,17 +48,49 @@ void cgc_dicegame() {
 	cgc_put("How many rolls do you want? ");
 	cgc_recvUntil(0, howmany, 15, '\n');
 	maxrolls = cgc_atoi(howmany);
+	
+	float init = 1.0;
+
+	dfsan_label atila_rollnum = dfsan_create_label("atila_rollnum", init);
+        dfsan_set_label(atila_rollnum, &rollnum, sizeof(int));
+	
+	dfsan_label atila_maxrolls = dfsan_create_label("atila_maxrolls", init);
+        dfsan_set_label(atila_maxrolls, &maxrolls, sizeof(int));
+
 
 	while(rollnum < maxrolls) {
+
 		cgc_put("Rolling a 31337 sided dice. 31337 wins jackpot. If you guess within 100, you win.\n");
 		cgc_put("What is your guess for the dice? ");
+
 		#ifdef PATCHED_1
 		rolls[rollnum%16] = cgc_hugsnextrand(state);
-		if(rolls[rollnum%16] % 31338 == 31337)
 		#else
 		rolls[rollnum] = cgc_hugsnextrand(state);
-		if(rolls[rollnum] % 31338 == 31337)
 		#endif
+
+		//#ifdef PATCHED_1
+		//if(rolls[rollnum%16] % 31338 == 31337)
+		//#else 
+		//rolls[rollnum] = cgc_hugsnextrand(state);
+		//#endif
+
+                dfsan_label tempid_rollnum = dfsan_get_label((long) rollnum);
+                const struct dfsan_label_info *tempid_rollnum_info = dfsan_get_label_info(tempid_rollnum);
+                printf("\n\n pos: %f neg %f \n \n", tempid_rollnum_info->pos_dydx,tempid_rollnum_info->neg_dydx);
+
+                dfsan_label tempid_maxrolls = dfsan_get_label((long) maxrolls);
+                const struct dfsan_label_info *tempid_maxrolls_info = dfsan_get_label_info(tempid_maxrolls);
+                printf("\n\n pos: %f neg %f \n \n", tempid_maxrolls_info->pos_dydx,tempid_maxrolls_info->neg_dydx);
+
+                dfsan_label tempid_rolled = dfsan_get_label((long) rolls[rollnum]);
+                const struct dfsan_label_info *tempid_rolled_info = dfsan_get_label_info(tempid_rolled);
+                printf("\n\n pos: %f neg %f \n \n", tempid_rolled_info->pos_dydx,tempid_rolled_info->neg_dydx);
+
+
+
+
+		if(rolls[rollnum] % 31338 == 31337)
 		{
 			cgc_put("!!!JACKPOT!!!");
 			wager*=1000;
@@ -101,6 +134,18 @@ void cgc_dicegame() {
 			}
 		}
 		rollnum++;
+
+//		dfsan_label tempid_rollnum = dfsan_get_label((long) rollnum);
+  //              const struct dfsan_label_info *tempid_rollnum_info = dfsan_get_label_info(tempid_rollnum);
+    //            printf("\n\n pos: %f neg %f \n \n", tempid_rollnum_info->pos_dydx,tempid_rollnum_info->neg_dydx);
+
+      //          dfsan_label tempid_maxrolls = dfsan_get_label((long) maxrolls);
+        //        const struct dfsan_label_info *tempid_maxrolls_info = dfsan_get_label_info(tempid_maxrolls);
+          //      printf("\n\n pos: %f neg %f \n \n", tempid_maxrolls_info->pos_dydx,tempid_maxrolls_info->neg_dydx);
+
+            //    dfsan_label tempid_rolled = dfsan_get_label((long) rolls[rollnum]);
+              //  const struct dfsan_label_info *tempid_rolled_info = dfsan_get_label_info(tempid_rolled);
+                //printf("\n\n pos: %f neg %f \n \n", tempid_rolled_info->pos_dydx,tempid_rolled_info->neg_dydx);
 	}
 
 	return;

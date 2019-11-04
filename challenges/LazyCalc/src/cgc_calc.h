@@ -23,7 +23,7 @@
 #pragma once
 
 #include "cgc_stdlib.h"
-#include "cgc_stdint.h"
+#include <stdint.h>
 
 typedef enum {
   OP_ADD = 0x45FD1D19,

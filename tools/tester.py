@@ -198,6 +198,7 @@ def test_challenges(chal_names):
     testers = map(Tester, chals)
     for test in testers:
         test.run()
+    
 
     return testers
 

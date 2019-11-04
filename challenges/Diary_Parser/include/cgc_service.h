@@ -27,7 +27,7 @@ THE SOFTWARE.
 #define __service_h__
 
 #include "cgc_stdlib.h"
-#include "cgc_stdint.h"
+#include <stdint.h>
 
 #define MAX_ENTRY_PER_TITLE 15 // The most Entries a Chapter can have 
 #define MAX_NUM_ENTRIES 15

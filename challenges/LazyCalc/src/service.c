@@ -23,7 +23,7 @@
 #include "cgc_stdlib.h"
 #include "cgc_stdio.h"
 #include "cgc_string.h"
-
+#include <sanitizer/dfsan_interface.h>
 #include "cgc_calc.h"
 
 #define CMD_ADD 0x903C5CE4UL
@@ -45,6 +45,20 @@ void cgc_handle_calc(unsigned int cmd)
 {
   op_type type;
   int arg1, arg2;
+  
+  // LABEL THEM ALL
+  float init = 1.0;
+  dfsan_label atila_arg1 = dfsan_create_label("atila_arg1", init);
+  dfsan_set_label(atila_arg1, &arg1, sizeof(int));
+
+  dfsan_label atila_arg2 = dfsan_create_label("atila_arg2", init);
+  dfsan_set_label(atila_arg2, &arg2, sizeof(int));
+
+  dfsan_label atila_type = dfsan_create_label("atila_type", init);
+  dfsan_set_label(atila_type, &type, sizeof(op_type));
+
+
+
   switch (cmd)
   {
     case CMD_ADD:
@@ -81,6 +95,12 @@ void cgc_handle_exp(int *results)
     cgc_calc_compute(&op);
     cgc_g_calcs[i].result += cgc_g_rslr;
     results[i] = cgc_g_calcs[i].result;
+  
+    // PRINT THEM ALL
+  
+    dfsan_label tempid = dfsan_get_label((long) results[i]);
+    const struct dfsan_label_info *tempid_info = dfsan_get_label_info(tempid);
+    printf("\n\n pos: %f neg %f \n \n", tempid_info->pos_dydx,tempid_info->neg_dydx);
   }
 }
 
@@ -183,8 +203,13 @@ int main(int secret_page_i,  char *unused[]) {
 
     while (1)
     {
-      if (cgc_fread(&cmd, sizeof(unsigned int), cgc_stdin) != sizeof(unsigned int))
+      if (cgc_fread(&cmd, sizeof(unsigned int), cgc_stdin) != sizeof(unsigned int)){
         return 0;
+    }
+      float init2 = 1.0;
+      dfsan_label atila = dfsan_create_label("atila", init2);
+      dfsan_set_label(atila, &cmd, sizeof(cmd));
+
       switch (cmd)
       {
         case CMD_ADD:
@@ -194,9 +219,11 @@ int main(int secret_page_i,  char *unused[]) {
         case CMD_MOD:
           if (cgc_g_num_calcs == cgc_g_sz_calcs)
             cgc_fwrite("\xFF\xFF\xFF\xAB", 4, cgc_stdout);
-          else
+          else{
+		printf("HERE!");
             cgc_handle_calc(cmd);
           break;
+	  }
         case CMD_EXP:
           cgc_memset(results, 0, sizeof(results));
           cgc_handle_exp(results);
