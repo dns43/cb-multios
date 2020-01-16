@@ -24,7 +24,11 @@
 #define MALLOC_PRIVATE_H_
 
 #include "cgc_stdlib.h"
-#include "cgc_stdint.h"
+#include <stdint.h>
+
+# define UINT_MAX UINT32_MAX
+# define INT_MAX INT32_MAX
+
 
 #define RUN_SIZE (1024 * 1024)
 #define TINY_SIZE (4)

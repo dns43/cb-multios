@@ -79,8 +79,9 @@ int cgc_recvUntil(int fd, char *buf, int max, char delim)
     int i;
     char *tmp;
     tmp = buf;
+    cgc_put("DEBUG2.1");
     while(i < max && got != delim) {
-        cgc_receive(0, &got, 1, NULL);
+	cgc_receive(0, &got, 1, NULL);
         *tmp = got;
         tmp++;
         i++;

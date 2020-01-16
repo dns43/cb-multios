@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include "libcgc.h"
 #include "cgc_service.h"
+#include <sanitizer/dfsan_interface.h>
 
 uint16_t entry_count;
 uint16_t chapter_count;
@@ -34,7 +35,7 @@ uint16_t cgc_read_short()
 {
 	uint16_t val;
 	//cgc_size_t rx;
-
+	printf("HERE1");
 	//if ( receive( STDIN, &val, sizeof(val), &rx ) != 0 ) 
 	if (cgc_receive_bytes( (uint8_t*)&val, sizeof(val) ) != 2 )
 	{
@@ -45,6 +46,7 @@ uint16_t cgc_read_short()
 
 void cgc_populate_entry(int entry, int num, char* str, int str_len, uint8_t req, uint8_t mult, uint8_t type)
 {
+	printf("HERE2");
 	entry_info_table[entry][num] = (Entry_Info*)cgc_malloc(sizeof(Entry_Info));
 	entry_info_table[entry][num]->format = type;
 	entry_info_table[entry][num]->mult_ok = mult;
@@ -56,6 +58,7 @@ void cgc_populate_entry(int entry, int num, char* str, int str_len, uint8_t req,
 
 void cgc_populate_sub_entry(int entry, int num, char* str, int str_len, uint8_t req, uint8_t mult, uint8_t type)
 {
+	printf("HERE3");
 	sub_entry_info_list[entry][num] = (Entry_Info*)cgc_malloc(sizeof(Entry_Info));
 	sub_entry_info_list[entry][num]->format = type;
 	sub_entry_info_list[entry][num]->mult_ok = mult;
@@ -72,6 +75,7 @@ void cgc_populate_sub_entry(int entry, int num, char* str, int str_len, uint8_t 
 // populate the entry_info_table with valid fields
 void cgc_populateEntryInfo()
 {
+	printf("HERE4");
 	char ss[NAME_LEN_MAX];
 	cgc_bzero(ss, NAME_LEN_MAX);
 	int num, entry;
@@ -258,6 +262,7 @@ void cgc_populateEntryInfo()
 
 void cgc_populateSubEntryInfo()
 {
+	printf("HERE5");
 	char ss[NAME_LEN_MAX];
 	cgc_bzero(ss, NAME_LEN_MAX);
 	int num, entry;
@@ -426,6 +431,7 @@ void cgc_populateSubEntryInfo()
 // return an entry_info with the proper title field name
 uint8_t cgc_getEntryInfo(uint16_t title, uint8_t entry, uint8_t is_sub, Entry_Info *entry_info)
 {
+	printf("HERE6");
 	if (is_sub) 
 		#ifdef PATCHED 
 			{
@@ -461,6 +467,7 @@ int buffer_length;
 
 int cgc_verify_entry(Entry *entry)
 {
+	printf("HERE7");
 	if (!entry)
 		return 1;
 
@@ -485,6 +492,7 @@ int cgc_verify_entry(Entry *entry)
 
 int cgc_verify_chapter(Chapter *chap)
 {
+	printf("HERE8");
 	if (!chap)
 		return 1;
 
@@ -505,6 +513,7 @@ int cgc_verify_chapter(Chapter *chap)
 
 int cgc_parse_book(uint8_t* buff, int rcv_len, int first_offset)
 {
+	printf("HERE9");
 	Entry *entry;
 
 	uint16_t next_offset = first_offset;
@@ -520,6 +529,13 @@ int cgc_parse_book(uint8_t* buff, int rcv_len, int first_offset)
 	Entry_Info *(*entry_table)[MAX_ENTRY_PER_TITLE];
 
 	Chapter *chapter = NULL;
+	
+	// TAGGING CHAPTER
+	
+	float init = 1.0;
+        // dfsan_label atila = dfsan_create_label("atila", init);
+        // dfsan_set_label(atila, &chapter, sizeof(&chapter));   
+	
 	do
 	{
 		// start parsing a new chapter
@@ -548,6 +564,11 @@ int cgc_parse_book(uint8_t* buff, int rcv_len, int first_offset)
 			// first chapter handled here
 			chapter = (Chapter*)(buff+next_offset);
 		}
+
+		// dfsan_label tempid = dfsan_get_label(chapter);
+  		// const struct dfsan_label_info *chapter_info = dfsan_get_label_info(tempid);
+  		// printf("\n\n pos: %f neg %f \n \n", chapter_info->pos_dydx, chapter_info->neg_dydx);
+
 		int t = 0;
 		#ifdef PATCHED
 		if ((uint8_t *)chapter + sizeof(Chapter) > buff + rcv_len) {
@@ -809,12 +830,14 @@ int cgc_parse_book(uint8_t* buff, int rcv_len, int first_offset)
 
 void cgc_init()
 {
+	printf("HERE10");
 	cgc_populateEntryInfo();
 	cgc_populateSubEntryInfo();
 }
 
 void cgc_test_win()
 {
+	printf("HERE11");
 	int success = 0;
 	for (int i = 0; i < 5; i++)
 	{
@@ -846,6 +869,7 @@ void cgc_test_win()
 // parse and print the content
 int main(int cgc_argc, char *cgc_argv[])
 {
+	printf("HERE12");
 	cgc_init();
 
 	cgc_memset(successful, 0, 5);

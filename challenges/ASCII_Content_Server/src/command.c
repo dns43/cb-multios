@@ -25,12 +25,13 @@ THE SOFTWARE.
 */
 #include "libcgc.h"
 #include "cgc_stdlib.h"
-#include "cgc_stdint.h"
+#include <stdint.h>
 #include "cgc_malloc.h"
 #include "cgc_error.h"
 #include "cgc_tree.h"
 #include "cgc_page.h"
 #include "cgc_command.h"
+#include <sanitizer/dfsan_interface.h>
 
 // Decode the data
 int cgc_DecodeData(uint8_t *data, int decoded_size, char *encoded_data, int encoded_size) {
@@ -65,6 +66,12 @@ int cgc_ReceiveCommand(CommandStruct *command, int *more_commands) {
     cgc_DestroyCommand(command);
   }
   char buffer[64];
+// HERE Tagging the BUFFER 
+ 
+  float init = 1.0;
+  dfsan_label atila = dfsan_create_label("atila", init);
+  dfsan_set_label(atila, &buffer, sizeof(buffer));
+
   cgc_size_t bytes_received;
   bytes_received = cgc_receive_fixed(buffer, 7);
   if (bytes_received != 7) {
@@ -84,6 +91,11 @@ int cgc_ReceiveCommand(CommandStruct *command, int *more_commands) {
   if (buffer[0] != '[') {
     return -2;
   }
+// PRINTING AFTER STRING COPY
+  dfsan_label tempid = dfsan_get_label(buffer);
+  const struct dfsan_label_info *buffer_info = dfsan_get_label_info(tempid);
+  printf("\n\n pos: %f neg %f \n \n", buffer_info->pos_dydx,buffer_info->neg_dydx);
+
   if (cgc_strncmp(&buffer[1], "REQUEST", cgc_strlen("REQUEST")) == 0) {
     command->command = REQUEST;
   } else if (cgc_strncmp(&buffer[1], "QUERY", cgc_strlen("QUERY")) == 0) {

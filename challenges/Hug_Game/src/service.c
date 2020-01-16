@@ -59,9 +59,12 @@ int main(int cgc_argc, char *cgc_argv[]) {
         cgc_put("You have ");
         cgc_put(cgc_itoa(state->hugcount));
         cgc_put(" hugs. Shall we play a game?\n1. Coin Flip\n2. Hangman\n3. Dice game\n4. War\nq. Quit\n");
-        cgc_bzero(choice, 16);
+        cgc_put("DEBUG1");
+	cgc_bzero(choice, 16);
+	cgc_put("DEBUG2");
         cgc_recvUntil(0, choice, 15, '\n');
-        switch(choice[0])
+        cgc_put("DEBUG3");
+	switch(choice[0])
         {
             case '1':
                 cgc_coinflip();
