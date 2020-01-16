@@ -1,0 +1,13 @@
+out_label,lhs_label,rhs_label,out_ndx,out_pdx,opcode,zero,location
+1,0,0,1.000000,1.000000,,0,input_char
+2,0,0,1.000000,1.000000,,0,input_char
+3,0,2,nan,nan,ICmp,0,UNKNOWN
+4,0,2,-1.000000,-1.000000,Sub,0,/local/dennis/new/cb-multios/include/libpov/strcmp.c:30
+5,2,0,nan,nan,ICmp,0,UNKNOWN
+6,0,0,1.000000,1.000000,,0,input_char
+7,0,6,nan,nan,ICmp,0,UNKNOWN
+8,0,6,-1.000000,-1.000000,Sub,0,/local/dennis/new/cb-multios/include/libpov/strcmp.c:30
+9,6,0,nan,nan,ICmp,0,UNKNOWN
+10,0,0,1.000000,1.000000,,0,input_char
+11,0,10,nan,nan,ICmp,0,UNKNOWN
+12,0,10,-1.000000,-1.000000,Sub,0,/local/dennis/new/cb-multios/include/libpov/strcmp.c:30

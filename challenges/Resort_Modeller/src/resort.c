@@ -507,7 +507,7 @@ int32_t cgc_load_rider_group(void) {
 	input_s = input;
 
 	RECV(input, read_sz);
-float init = 1.0; dfsan_label lbl = dfsan_create_label("input_char", init); dfsan_set_label(lbl, input, sizeof(input));	
+//float init = 1.0; dfsan_label lbl = dfsan_create_label("input_char", init); dfsan_set_label(lbl, input, sizeof(input));	
 
 	result = cgc_gen_riders(&input, count);
 	if (0 > result) return -1;

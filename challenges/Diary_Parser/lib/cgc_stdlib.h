@@ -30,7 +30,7 @@ THE SOFTWARE.
 #define FREE_FLAG 2
 
 typedef struct _heap_block_header {
-	cgc_size_t remaining_size;
+	cgc_ssize_t remaining_size;
 	struct _heap_block_header *next;
 	char data[1];
 } heap_block_header;

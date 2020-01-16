@@ -34,7 +34,7 @@
 void __attribute__((regparm(2))) cgc_rider_health_check(Rider *r, uint32_t r_id) {
 
 	uint32_t *results = &r->health_code;
-dfsan_label lbl = dfsan_get_label(*results); const struct dfsan_label_info *info = dfsan_get_label_info(lbl); printf("\n In Function \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
+//dfsan_label lbl = dfsan_get_label(*results); const struct dfsan_label_info *info = dfsan_get_label_info(lbl); printf("\n In Function \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
 #ifdef PATCHED_1
 	if (0 == r->energy_level) {
 		*results = r->health_code;
@@ -42,7 +42,7 @@ dfsan_label lbl = dfsan_get_label(*results); const struct dfsan_label_info *info
 #else
 	if (0 == r->energy_level) {
 		*results++ = r->health_code;
-lbl = dfsan_get_label(*results++); info = dfsan_get_label_info(lbl); printf("\n In Function \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
+//lbl = dfsan_get_label(*results++); info = dfsan_get_label_info(lbl); printf("\n In Function \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx);
 	}
 	*results = r->health_code;
 #endif

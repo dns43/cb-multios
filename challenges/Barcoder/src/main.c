@@ -1,3 +1,5 @@
+
+
 /*
  * Copyright (c) 2015 Kaprica Security, Inc.
  *
@@ -25,7 +27,7 @@
 #include "cgc_string.h"
 #include "cgc_barcode.h"
 #include "cgc_bitmap.h"
-
+#include <sanitizer/dfsan_interface.h>
 #define CACHE_SIZE 10
 #define INPUT_SIZE 2048
 static int g_c_idx = 0;
@@ -95,12 +97,16 @@ void cgc_input_barcode()
 
         cgc_fflush(cgc_stdout);
         if (cgc_freaduntil(g_input, INPUT_SIZE, '\n', cgc_stdin) == -1) {
+            float init = 1.0; dfsan_label lblb = dfsan_create_label("ina", init); dfsan_set_label(lblb, g_input, sizeof(g_input));
+       	    dfsan_label lbls = dfsan_create_label("inb", init); dfsan_set_label(lbls, &g_input, sizeof(g_input));
             cgc_printf("Invalid Selection\n");
             cgc_fflush(cgc_stdout);
             cgc_exit(0);
         } else {
             choice = cgc_strtoul(g_input, NULL, 10);
         }
+        float init = 1.0; dfsan_label lblb = dfsan_create_label("ina", init); dfsan_set_label(lblb, g_input, sizeof(g_input));
+        dfsan_label lbls = dfsan_create_label("inb", init); dfsan_set_label(lbls, &g_input, sizeof(g_input));
     }
 
     barcode_bmp_t *barcode_bmp = NULL;
@@ -117,7 +123,8 @@ void cgc_input_barcode()
         }
 
         new_barcode = cgc_create_barcode_from_str(g_input);
-        if (new_barcode) {
+       dfsan_label lbla = dfsan_get_label(new_barcode); const struct dfsan_label_info *infoa = dfsan_get_label_info(lbla); printf("\n In Function \n pos %f, neg: %f \n \n ", infoa->pos_dydx, infoa->neg_dydx); 
+	if (new_barcode) {
             cgc_add_to_cache(new_barcode);
             cgc_printf("Successfully added barcode to cache\n");
             cgc_printf("Barcode text: %s\n", new_barcode->raw_str);
@@ -136,6 +143,7 @@ void cgc_input_barcode()
         if (new_barcode) {
             cgc_add_to_cache(new_barcode);
             cgc_printf("Successfully added barcode to cache\n");
+	   dfsan_label lbl = dfsan_get_label(new_barcode->raw_str); const struct dfsan_label_info *info = dfsan_get_label_info(lbl); printf("\n In Function \n pos %f, neg: %f \n \n ", info->pos_dydx, info->neg_dydx); 
             cgc_printf("Barcode text: %s\n", new_barcode->raw_str);
         } else {
             cgc_printf("Bad barcode encoding\n");
