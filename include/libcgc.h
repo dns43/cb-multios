@@ -35,6 +35,12 @@ typedef unsigned int  cgc_ssize_t;
 # define CGC_FLAG_PAGE_ADDRESS 0x4347C000
 #endif
 
+#ifndef LIBCGC_IMPL
+void *malloc(cgc_size_t size);
+void free(void *p);
+void *realloc(void *p, cgc_size_t size);
+#endif
+
 #ifndef offsetof
 # define offsetof(TYPE, MEMBER) __builtin_offsetof (TYPE, MEMBER)
 #endif
