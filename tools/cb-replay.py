@@ -1371,6 +1371,14 @@ def main():
                 pool_responses.append(pool_response)
             else:
                 result_handler.cb_pov_result(run_pov(*pov_args))
+            
+            import shutil
+            import pdb
+            pdb.set_trace()
+            # cp *csv results/$(args.cbs)/$pov/
+            src = "*csv"
+            dst = "results/"+args.cbs+"/"+pov+"/"
+            dest = shutil.copyfile(src, dst) 
 
         for response in pool_responses:
             response.get()

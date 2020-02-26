@@ -428,6 +428,19 @@ def main():
         a.write('STATUS: '+str(status)+'\n')
         a.close()
         #self.log('STATUS: '+str(status))
+        import shutil
+        import pdb
+        import glob
+        #pdb.set_trace()
+        # cp *csv results/$(args.cbs)/$pov/
+        cb_name = str((args.cbs)[-1:][-1]).split("/")[-1]
+        pov_num = (pov).split("/")[-1][:-4]
+        dst = "results/"+cb_name+"/"+pov_num+"/"
+        if not os.path.exists(dst):
+            os.mkdir(dst)
+        for csv in glob.glob("*.csv"):
+            dest = shutil.move(csv, dst+csv)
+
     return status != 0
 
 

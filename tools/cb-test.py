@@ -397,7 +397,7 @@ class Runner(object):
             replay_cmd += ['--max_send', '%d' % self.max_send]
 
         replay_cmd += xml
-
+        print replay_cmd
         return self.launch(replay_cmd)
 
     def _check_result_cqe(self, sig, ret):
