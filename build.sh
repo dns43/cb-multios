@@ -13,50 +13,36 @@ if ! /usr/bin/env python -c "import xlsxwriter; import Crypto" 2>/dev/null; then
     exit 1
 fi
 
-echo "Creating build directory"
-mkdir -p ${DIR}/build
-cd ${DIR}/build
+  echo "Creating build directory"
+  mkdir -p ${DIR}/build
+  cd ${DIR}/build
 
-echo "Creating Makefiles"
-CMAKE_OPTS="${CMAKE_OPTS} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+  echo "Creating Makefiles"
+  CMAKE_OPTS="${CMAKE_OPTS} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 
-CC=clang
-CXX=clang++
 
-# Honor CC and CXX environment variables, default to clang otherwise
-if [ "$1" == 'pov' ]; then
-  CMAKE_OPTS="$CMAKE_OPTS -DCASE=POVONLY "
-  mkdir -p ${DIR}/pov
-  cd ${DIR}/pov
-elif [ "$1" == 'cb' ]; then
-  CMAKE_OPTS="$CMAKE_OPTS -DCASE=CBONLY"
-  CC=/local/dennis/new//gradtest/llvm-7.0.0.build/`uname -m`/llvm-7.0/bin/bin/clang #${CC:-clang}
-  CXX=/local/dennis/new/gradtest/llvm-7.0.0.build/`uname -m`/llvm-7.0/bin/bin/clang++ #${CXX:-clang++}
-fi
-echo $CC
-echo `which $CC`
-#CC=${CC:-clang}
-#CXX=${CXX:-clang++}
+  # Honor CC and CXX environment variables, default to clang otherwise
+  CC=${CC:-clang}
+  CXX=${CXX:-clang++}
 
-CMAKE_OPTS="$CMAKE_OPTS -DCMAKE_C_COMPILER=$CC"
-CMAKE_OPTS="$CMAKE_OPTS -DCMAKE_ASM_COMPILER=$CC"
-CMAKE_OPTS="$CMAKE_OPTS -DCMAKE_CXX_COMPILER=$CXX"
+  CMAKE_OPTS="$CMAKE_OPTS -DCMAKE_C_COMPILER=$CC"
+  CMAKE_OPTS="$CMAKE_OPTS -DCMAKE_ASM_COMPILER=$CC"
+  CMAKE_OPTS="$CMAKE_OPTS -DCMAKE_CXX_COMPILER=$CXX"
 
-LINK=${LINK:-SHARED}
-case $LINK in
-    SHARED) CMAKE_OPTS="$CMAKE_OPTS -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF";;
-    STATIC) CMAKE_OPTS="$CMAKE_OPTS -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON";;
-esac
+  LINK=${LINK:-SHARED}
+  case $LINK in
+      SHARED) CMAKE_OPTS="$CMAKE_OPTS -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF";;
+      STATIC) CMAKE_OPTS="$CMAKE_OPTS -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON";;
+  esac
 
-# Prefer ninja over make, if it is available
-#if which ninja 2>&1 >/dev/null; then
-#  CMAKE_OPTS="-G Ninja $CMAKE_OPTS"
-#  BUILD_FLAGS=
-#else
-  # BUILD_FLAGS="-- -j$(getconf _NPROCESSORS_ONLN)"
-  BUILD_FLAGS=
-#fi
+  # Prefer ninja over make, if it is available
+  #if which ninja 2>&1 >/dev/null; then
+  #  CMAKE_OPTS="-G Ninja $CMAKE_OPTS"
+  #  BUILD_FLAGS=
+  #else
+    # BUILD_FLAGS="-- -j$(getconf _NPROCESSORS_ONLN)"
+    BUILD_FLAGS=
+  #fi
+  cmake $CMAKE_OPTS ..
 
-cmake $CMAKE_OPTS ..
-
-cmake --build . $BUILD_FLAGS
+  cmake --build . $BUILD_FLAGS

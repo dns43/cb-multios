@@ -8,6 +8,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
 
+if(NEG)
+    add_compile_options(-DLOG_NEG)
+endif(NEG)
+if(PAY)
+    add_compile_options(-DLOG_PAYLOAD)
+endif(PAY)
+if(DEBUG)
+    add_compile_options(-DLOG_COMM)
+endif(DEBUG)
+
 if(WIN32)
     # Need to use MASM on windows
     enable_language(ASM_MASM)

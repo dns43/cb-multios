@@ -270,10 +270,7 @@ int cgc_transmit_all(int fd, const void *buf, const cgc_size_t size) {
     if (!size)
         return 2;
 
-    int *fp;
-    //char buff[255]
-    fp = fopen("transmitall.txt", "ab");
-    write(fileno(fp), buf);
+
 
     while (sent < size) {
         ret = cgc_transmit(fd, sent + (char*)buf, size - sent, &sent_now);
@@ -282,8 +279,14 @@ int cgc_transmit_all(int fd, const void *buf, const cgc_size_t size) {
         }
         sent += sent_now;
     }
-
-    return 0;
+    #ifdef LOG_PAYLOAD
+      int *fp;
+      //char buff[255]
+      fp = fopen("cb_payload.csv", "ab");
+      write(fileno(fp), buf);
+      close(fp);
+   #endif
+   return 0;
 }
 
 pcre *cgc_init_regex(const char *pattern) {
@@ -328,10 +331,12 @@ void cgc_negotiate_type2() {
    if (cgc_length_read(3, (unsigned char *)type2vals, sizeof(type2vals)) != sizeof(type2vals)) {
       cgc__terminate(0);
    }
-   //int *fp;
-    //char buff[255]
-    //fp = fopen("test.txt", "ab");
-    //write("wrote", buf);
+   #ifdef LOG_NEG
+      int *fp;
+      //char buff[255]
+      fp = fopen("cb_negotiate.csv", "ab");
+      write(fp, type2vals);
+   #endif
    cgc_putenv("TYPE2_ADDR", (unsigned char*)&type2vals[0], sizeof(unsigned int));
    cgc_putenv("TYPE2_SIZE", (unsigned char*)&type2vals[1], sizeof(unsigned int));
    cgc_putenv("TYPE2_LENGTH", (unsigned char*)&type2vals[2], sizeof(unsigned int));

@@ -257,3 +257,6 @@ _backup/
 test.cpp
 challenges/*/bin
 challenges/*/pov
+
+tools/util/
+nohup.out

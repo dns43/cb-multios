@@ -34,10 +34,18 @@ void cgc__terminate(unsigned int status) {
 int cgc_transmit(int fd, const void *buf, cgc_size_t count, cgc_size_t *tx_bytes) {
     const cgc_ssize_t ret = write(fd, buf, count);
 
-    //FILE *fp;
-    //char buff[255]
-    //fp = fopen("test.txt", "ab");
-    //write(fileno(fp), buf, count);
+    #ifdef LOG_COMM
+    /*
+     * Creates a file with all transmitted data
+     * Helps debugging communication between CB and POV
+     * E.g. if the negotiation is in sync
+     */
+      FILE *fp;
+      //char buff[255]
+      fp = fopen("cb_comm.csv", "ab");
+      write(fileno(fp), buf, count);
+      close(fp);
+    #endif
 
     if (ret < 0) {
         return errno;
@@ -270,7 +278,21 @@ static void __attribute__ ((constructor)) cgc_initialize_flag_page(void) {
   // Fill the flag page with bytes from the prng
   cgc_try_init_prng();
   cgc_aes_get_bytes(cgc_internal_prng, PAGE_SIZE, mmap_addr);
-  FILE *fp;
-  fp = fopen("cgc_random.txt", "ab");
-  write(fileno(fp), mmap_addr, PAGE_SIZE);
+
+  /*
+   * This constructor is run at the beginning of each execution
+   * It initializes the flag pages with random variables by
+   * Running AES over a random seed
+   * In the future, random values can be "generated" by picking values from this page
+   * 
+   * We allow for printing it to file
+   * such that we can compare if tester.py's random seed generator and AES implementation match
+   * 
+   */
+  #ifdef LOG_RANDOM_PAGE
+    FILE *fp;
+    fp = fopen("cb_random_page.csv", "ab");
+    write(fileno(fp), mmap_addr, PAGE_SIZE);
+    close(fp);
+  #endif
 }
