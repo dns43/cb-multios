@@ -34,11 +34,18 @@ void cgc__terminate(unsigned int status) {
 int cgc_transmit(int fd, const void *buf, cgc_size_t count, cgc_size_t *tx_bytes) {
     const cgc_ssize_t ret = write(fd, buf, count);
 
+    //FILE *fp;
+    //char buff[255]
+    //fp = fopen("test.txt", "ab");
+    //write(fileno(fp), buf, count);
+
     if (ret < 0) {
         return errno;
     } else if (tx_bytes != NULL) {
         *tx_bytes = ret;
     }
+	
+    
 
     return 0;
 }
@@ -263,4 +270,7 @@ static void __attribute__ ((constructor)) cgc_initialize_flag_page(void) {
   // Fill the flag page with bytes from the prng
   cgc_try_init_prng();
   cgc_aes_get_bytes(cgc_internal_prng, PAGE_SIZE, mmap_addr);
+  FILE *fp;
+  fp = fopen("cgc_random.txt", "ab");
+  write(fileno(fp), mmap_addr, PAGE_SIZE);
 }

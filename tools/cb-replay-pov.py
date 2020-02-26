@@ -29,6 +29,7 @@ using a Challenge Binary as input.
 1 - http://testanything.org/
 """
 
+import pdb
 import subprocess as sp
 import multiprocessing as mp
 import random
@@ -37,6 +38,7 @@ import os
 import signal
 import struct
 import threading
+import pdb
 
 from common import IS_WINDOWS, Timeout, TimeoutError
 import challenge_runner
@@ -105,28 +107,61 @@ class Throw(object):
         return count
 
     def read_all(self, fd, data_len):
+        a = open("PAGE_ADDR.txt", "a")
+        a.write('in')
+        a.close()
         data = ''
         while len(data) < data_len:
+            a = open("PAGE_ADDR.txt", "a")
+            a.write('\n data_len')
+            a.write(str(data_len))
+            a.write('\n len(data):')
+            a.write(str(len(data)))
+            a.close()
             read = os.read(fd, data_len - len(data))
+            a = open("PAGE_ADDR.txt", "a")
+            a.write('afterosread')
+            a.write('\n read: ')
+            a.write(str(read.encode('hex')))
+            a.write('\n')
+            #self.log("secret value: %s" % data.encode('hex'))
+
+            a.close()
+            a = open("PAGE_ADDR.txt", "a")
+            a.write('veryend1')
+            a.close()
             assert len(read)
+            a.close()
+            a = open("PAGE_ADDR.txt", "a")
+            a.write('veryend2')
+            a.close()
             data += read
+        a = open("PAGE_ADDR.txt", "a")
+        a.write('veryend3')
+        a.close()
         return data
 
     def pov_negotiate(self, pipefd):
+
+        #print "ASDASDASD \n"
+        #f = open("aaaa", "a")
+        #f.write("test")
+        #f.close()
+
         MIN_BITS = 0
 
         if self.debug:
             self.log("negotiating")
 
         data = self.read_all(pipefd, 4)
-        pov_type = struct.unpack('<L', data)[0]
+        pov_type = struct.unpack('<I', data)[0]
         assert pov_type in [1, 2], 'invalid pov type'
 
         self.log("negotiation type: %d" % pov_type)
 
         if pov_type == 1:
             data = self.read_all(pipefd, 12)
-            ipmask, regmask, regnum = struct.unpack('<LLL', data)
+            ipmask, regmask, regnum = struct.unpack('<III', data)
             accept = True
 
             if self.count_bits_set(ipmask) < MIN_BITS:
@@ -148,45 +183,86 @@ class Throw(object):
                 self.log('type 1 masks: %08x %08x' % (ipmask, regmask))
                 self.log('type 1 pov: %08x %08x %d' % (ip, reg, regnum))
 
-                pov_values = struct.pack('<LL', ip, reg)
+                pov_values = struct.pack('<II', ip, reg)
                 os.write(pipefd, pov_values)
 
         if pov_type == 2:
             PAGE_ADDR = 0x4347C000
             PAGE_LENGTH = 0x1000
             PAGE_BYTES = 4
+        
+            a = open("PAGE_ADDR.txt", "a")
+            a.write(str(PAGE_ADDR))
+            a.close()
+            
+            a = open("PAGE_ADDR.txt", "a")
+            a.write('before')
+            a.close()
 
             self.log("sending page location: %d, %d, %d" % (PAGE_ADDR, PAGE_LENGTH, PAGE_BYTES))
-            pov_location = struct.pack('<LLL', PAGE_ADDR, PAGE_LENGTH, PAGE_BYTES)
+            pov_location = struct.pack('<III', PAGE_ADDR, PAGE_LENGTH, PAGE_BYTES)
             os.write(pipefd, pov_location)
-
+            
+            a = open("PAGE_ADDR.txt", "a")
+            a.write('between')
+            a.close()
+            
             if self.debug:
                 self.log("getting secret")
             data = self.read_all(pipefd, 4)
+            a = open("data.txt", "a")
+            a.write('fd \n')
+            a.write(str(data))
+            a.write('\n')
+            a.close()
+            #data = os.read(pipefd,8)
             self.log("secret value: %s" % data.encode('hex'))
+            
+            a = open("PAGE_ADDR.txt", "a")
+            a.write('after')
+            a.close()
 
         if self.debug:
             self.log('done')
+
+        a = open("PAGE_ADDR.txt", "a")
+        a.write('dennnis')
+        a.write(str(data.encode('hex')))
+        a.close()
 
     def _launch_pov_unix(self, mainproc, pipe):
         # NOTE: This is running a forked process, free to clobber fds
         # This is mostly unchanged from the original source
         if self.timeout > 0:
             signal.alarm(self.timeout)
-
-        # Setup fds for communication
+        #sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+	    # Setup fds for communication
         os.dup2(mainproc.stdout.fileno(), 0)
         os.dup2(mainproc.stdin.fileno(), 1)
         os.dup2(pipe.fileno(), 3)
 
         if not self.debug:
             null = os.open('/dev/null', 0)
+            #null = os.open('/local/dennis/new/cb-multios/tools/POVOUTPUT', os.O_APPEND)
             os.dup2(null, 2)
             os.close(null)
+
+        #f = open("newfile4", "w")
+        #f.write(mainproc.stdout.fileno())
+        #f.close()
+
+        #tee = subprocess.Popen(["tee", "log2.txt"], stdin=subprocess.PIPE)
+        #os.dup2(tee.stdin.fileno(), 0)
+        #os.dup2(tee.stdin.fileno(), 2)
+        
+        #f = open("newfile3", "a")
+        #f.write("test2\n")
+        #f.close()
 
         args = [self.pov]
         if self.pov_seed:
             args.append('seed=%s' % self.pov_seed)
+
 
         # Launch the POV
         os.execv(self.pov, args)
@@ -227,6 +303,11 @@ class Throw(object):
             pov_runner.setDaemon(True)
         else:
             # Fork on unix systems so we can dup fds where we want them
+
+            print "ASDASDASD \n"
+            f = open("newfile", "a")
+            f.write("test")
+            f.close()
             pov_runner = mp.Process(target=self._launch_pov_unix, args=(mainproc, pipe))
 
         pov_runner.start()
@@ -258,6 +339,7 @@ class Throw(object):
         # Launch the challenges
         self.procs, watcher = challenge_runner.run(self.cb_paths, self.timeout, seed, self.log)
 
+        print "ASDASDASD \n"
         # Setup and run the POV
         pov_pipes = mp.Pipe(duplex=True)
         pov_runner = self.launch_pov(self.procs[0], pov_pipes[1])
@@ -273,12 +355,20 @@ class Throw(object):
 
         if self.debug:
             self.log('waiting')
+        
+        a = open("PAGE_ADDR.txt", "a")
+        a.write('bjoin\n')
+        a.close()
 
         # Wait for the POV to finish and results to get logged
         pov_runner.join()
         watcher.join()
 
-        self.log('END REPLAY')
+        a = open("PAGE_ADDR.txt", "a")
+        a.write('ajoin\n')
+        a.close()
+
+        self.log('END REPLAY'+str(self.procs[0].returncode))
         return self.procs[0].returncode
 
 
@@ -333,6 +423,11 @@ def main():
     for pov in args.files:
         status = run_pov(args.cbs, pov, args.timeout,
                          args.debug, args.pov_seed)
+        
+        a = open("status.txt", "a")
+        a.write('STATUS: '+str(status)+'\n')
+        a.close()
+        #self.log('STATUS: '+str(status))
     return status != 0
 
 

@@ -270,6 +270,11 @@ int cgc_transmit_all(int fd, const void *buf, const cgc_size_t size) {
     if (!size)
         return 2;
 
+    int *fp;
+    //char buff[255]
+    fp = fopen("transmitall.txt", "ab");
+    write(fileno(fp), buf);
+
     while (sent < size) {
         ret = cgc_transmit(fd, sent + (char*)buf, size - sent, &sent_now);
         if (ret != 0) {
@@ -318,11 +323,15 @@ void cgc_negotiate_type1(unsigned int ipmask, unsigned int regmask, unsigned int
 
 void cgc_negotiate_type2() {
    uint32_t povType = 2;
-   cgc_transmit_all(3, &povType, sizeof(povType));
+   cgc_transmit_all(3, &povType, sizeof(&povType));
    unsigned int type2vals[3];
    if (cgc_length_read(3, (unsigned char *)type2vals, sizeof(type2vals)) != sizeof(type2vals)) {
       cgc__terminate(0);
    }
+   //int *fp;
+    //char buff[255]
+    //fp = fopen("test.txt", "ab");
+    //write("wrote", buf);
    cgc_putenv("TYPE2_ADDR", (unsigned char*)&type2vals[0], sizeof(unsigned int));
    cgc_putenv("TYPE2_SIZE", (unsigned char*)&type2vals[1], sizeof(unsigned int));
    cgc_putenv("TYPE2_LENGTH", (unsigned char*)&type2vals[2], sizeof(unsigned int));

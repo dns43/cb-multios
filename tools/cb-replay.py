@@ -1374,6 +1374,7 @@ def main():
 
         for response in pool_responses:
             response.get()
+	    print response
 
     except KeyboardInterrupt:
         print "# Interrupted.  Logging as error"

@@ -288,6 +288,7 @@ int do_mix(cgc_state_t *state, pkt_t *pkt)
 
 static unsigned int do_hash(const unsigned char *_data, unsigned int len)
 {
+   // void *malloc(unsigned long size);
     unsigned char *data = malloc(len);
     unsigned int i, hash = 0, xform = 0x12345678;
 
@@ -311,11 +312,12 @@ static unsigned int do_hash(const unsigned char *_data, unsigned int len)
 }
 
 int main(int secret_page_i,  char *unused[]) {
-    secret_page_i = CGC_FLAG_PAGE_ADDRESS;
+    long secret_page_l = secret_page_i;
+    secret_page_l = CGC_FLAG_PAGE_ADDRESS;
 
     pkt_t pkt;
     cgc_state_t cur_state;
-    void *secret_page = (void *)secret_page_i;
+    void *secret_page = (void *)secret_page_l;
     unsigned int secret_hash;
 
     secret_hash = do_hash(secret_page, 0x1000);
@@ -329,10 +331,16 @@ int main(int secret_page_i,  char *unused[]) {
     while (1)
     {
         cgc_state_t *last_state;
-
-        writeflush();
+        //int *fp;
+        //char buff[255]
+        //fp = fopen("sensrdebug.txt", "ab");
+        //write(fileno(fp), "TEST 0 \n");
+        //writeflush();
         if (cgc_fread((char *)&pkt, sizeof(pkt), cgc_stdin) != sizeof(pkt))
             break;
+        
+
+        //write(fileno(fp), "TEST 1 \n");
 
         if (pkt.type == TYPE_RESET)
         {
@@ -363,6 +371,7 @@ int main(int secret_page_i,  char *unused[]) {
 
             last_state = cgc_stateq_tail(g_history);
         }
+        //write(fileno(fp), "TEST 2 \n");
 
         if (last_state && (last_state->flags & FLAG_TENTATIVE))
         {

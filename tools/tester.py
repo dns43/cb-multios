@@ -4,6 +4,7 @@ import glob
 import os
 import subprocess
 import sys
+import pdb
 
 import xlsxwriter as xl  # pip install xlsxwriter
 import xlsxwriter.utility as xlutil
@@ -111,10 +112,14 @@ class Tester:
                   '--negotiate_seed', '--cb'] + map(add_ext, bin_names)
         if should_core:
             cb_cmd += ['--should_core']
-
+	    print "Anthony " + str(cb_cmd)
+	#pdb.set_trace()
+        a = open("PAGE_ADDR.txt", "a")
+        a.write('spawn cb_test \n')
+        a.close()
         p = subprocess.Popen(cb_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=TOOLS_DIR)
         out, err = p.communicate()
-
+        print "Parsing results now "+str(out)
         total, passed = self.parse_results(out)
         score.total += total
         score.passed += passed
@@ -151,8 +156,10 @@ class Tester:
 
         # Run the tests
         self.run_test(bin_names, xml_dir, score, should_core=is_pov)
+        print "Dennis First round done \n"
+        print ['{}_patched'.format(b) for b in bin_names]
         self.run_test(['{}_patched'.format(b) for b in bin_names], xml_dir, score)
-
+        print "Dennis Second round done \n"
         # Display resulting totals
         debug(' => Passed {}/{}\n'.format(score.passed - p, score.total - t))
 

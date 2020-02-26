@@ -1,5 +1,6 @@
 # Created by https://www.gitignore.io/api/vim,sublimetext,xcode,osx,linux,windows,cmake,c++,c,python
 *.xlsx
+*.csv
 
 ### Vim ###
 [._]*.s[a-w][a-z]
@@ -34,6 +35,9 @@ sftp-config.json
 
 ## Build generated
 build/
+pov/
+results/
+tools/results/
 DerivedData
 
 ## Various settings

@@ -33,6 +33,14 @@ typedef unsigned int  cgc_ssize_t;
 
 #ifndef CGC_FLAG_PAGE_ADDRESS
 # define CGC_FLAG_PAGE_ADDRESS 0x4347C000
+//# define CGC_FLAG_PAGE_ADDRESS 0x40004347C000
+#endif
+
+#ifndef LIBCGC_IMPL
+// enable 64bit malloc function prototypes
+void *malloc(cgc_size_t size);
+void free(void *p);
+void *realloc(void *p, cgc_size_t size);
 #endif
 
 #ifndef offsetof
@@ -49,7 +57,8 @@ typedef unsigned int  cgc_ssize_t;
 
 #define CGC_FD_SETSIZE 1024
 
-typedef long int _fd_mask;
+//typedef long int _fd_mask;
+typedef int _fd_mask;
 
 #define CGC__NFDBITS (8 * sizeof(_fd_mask))
 
