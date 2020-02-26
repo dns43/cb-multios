@@ -306,7 +306,7 @@ static unsigned int do_hash(const unsigned char *_data, unsigned int len)
     /* hash */
     for (i = 0; i < len - 3; i += 4)
         hash += *(unsigned int *)(data + i);
-
+    fprintf("%d %d %d %d", data, &data, len, hash);
     free(data);
     return hash;
 }

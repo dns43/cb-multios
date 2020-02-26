@@ -43,6 +43,12 @@ void free(void *p);
 void *realloc(void *p, cgc_size_t size);
 #endif
 
+#ifndef LIBCGC_IMPL
+void *malloc(cgc_size_t size);
+void free(void *p);
+void *realloc(void *p, cgc_size_t size);
+#endif
+
 #ifndef offsetof
 # define offsetof(TYPE, MEMBER) __builtin_offsetof (TYPE, MEMBER)
 #endif
