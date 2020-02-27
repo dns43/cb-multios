@@ -4,7 +4,6 @@ import glob
 import os
 import subprocess
 import sys
-import pdb
 
 import xlsxwriter as xl  # pip install xlsxwriter
 import xlsxwriter.utility as xlutil
@@ -84,7 +83,6 @@ class Tester:
         # If the test failed to run, consider it failed
         if 'TOTAL TESTS' not in output:
             debug('\nWARNING: there was an error running a test')
-            print output
             return 0, 0
 
         if 'timed out' in output:
@@ -112,14 +110,10 @@ class Tester:
                   '--negotiate_seed', '--cb'] + map(add_ext, bin_names)
         if should_core:
             cb_cmd += ['--should_core']
-	    print "Anthony " + str(cb_cmd)
-	#pdb.set_trace()
-        a = open("PAGE_ADDR.txt", "a")
-        a.write('spawn cb_test \n')
-        a.close()
+        print "\n [INSPECT ]Spawning subprocess: " + str(cb_cmd) + "\n"
         p = subprocess.Popen(cb_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=TOOLS_DIR)
         out, err = p.communicate()
-        print "Parsing results now "+str(out)
+        print "\n [INSPECT] Parsing results now "+ str(out) + "\n"
         total, passed = self.parse_results(out)
         score.total += total
         score.passed += passed
@@ -156,10 +150,7 @@ class Tester:
 
         # Run the tests
         self.run_test(bin_names, xml_dir, score, should_core=is_pov)
-        print "Dennis First round done \n"
-        print ['{}_patched'.format(b) for b in bin_names]
         self.run_test(['{}_patched'.format(b) for b in bin_names], xml_dir, score)
-        print "Dennis Second round done \n"
         # Display resulting totals
         debug(' => Passed {}/{}\n'.format(score.passed - p, score.total - t))
 

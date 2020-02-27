@@ -26,7 +26,6 @@ THE SOFTWARE.
 This tool allows verification of POV and POLLs with a CGC challenge binary
 using 'cb-replay', 'tcpdump', and 'cb-server'.
 """
-import pdb
 import re
 import argparse
 import platform
@@ -265,9 +264,7 @@ class Runner(object):
             None
         """
         logging.debug('launching %s', ' '.join(cmd))
-        a = open("PAGE_ADDR.txt", "a")
-        a.write('spawn cb_replay_pov \n')
-        a.close()
+
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
@@ -294,9 +291,6 @@ class Runner(object):
         Raises:
             None
         """
-        a = open("cleanup.txt", "a")
-        a.write('in')
-        a.close()
         for process in self.processes:
             process.terminate()
 
@@ -397,7 +391,7 @@ class Runner(object):
             replay_cmd += ['--max_send', '%d' % self.max_send]
 
         replay_cmd += xml
-        print replay_cmd
+        print "[INSPECT] Spawning subprocess: " + str(replay_cmd)
         return self.launch(replay_cmd)
 
     def _check_result_cqe(self, sig, ret):
@@ -616,8 +610,6 @@ class Runner(object):
         return passed
 
     def run(self):
-	#print "Runner.run()"
-	#pdb.set_trace()
         """ Runs the test
 
         Arguments:
@@ -796,9 +788,6 @@ def main():
         logger.warning('interrupted')
     finally:
         runner.cleanup()
-    a = open("cleanup.txt", "a")
-    a.write(str(ret))
-    a.close()
     return ret
 
 
