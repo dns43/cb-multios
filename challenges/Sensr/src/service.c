@@ -313,8 +313,6 @@ static unsigned int do_hash(const unsigned char *_data, unsigned int len)
 
 int main(int secret_page_i,  char *unused[]) {
     secret_page_i = CGC_FLAG_PAGE_ADDRESS;
-    //long secret_page_l = secret_page_i;
-    //secret_page_l = CGC_FLAG_PAGE_ADDRESS;
 
     pkt_t pkt;
     cgc_state_t cur_state;
