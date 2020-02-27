@@ -110,7 +110,7 @@ class Tester:
                   '--negotiate_seed', '--cb'] + map(add_ext, bin_names)
         if should_core:
             cb_cmd += ['--should_core']
-        print "\n [INSPECT ]Spawning subprocess: " + str(cb_cmd) + "\n"
+        #print "\n [INSPECT ]Spawning subprocess: " + str(cb_cmd) + "\n"
         p = subprocess.Popen(cb_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=TOOLS_DIR)
         out, err = p.communicate()
         print "\n [INSPECT] Parsing results now "+ str(out) + "\n"

@@ -65,11 +65,14 @@ void dfsan_set_label(dfsan_label, void *, unsigned long);
 
 /* Receives data from another CGC process. */
 int cgc_receive(int fd, void *buf, cgc_size_t count, cgc_size_t *rx_bytes) {
-    const cgc_ssize_t ret = read(fd, buf, count);
-
-	float init = 1.0;
-	dfsan_label lbla = dfsan_create_label("input_char", init); 
-	dfsan_set_label(lbla, buf, sizeof(char));
+  const cgc_ssize_t ret = read(fd, buf, count);
+  //static const char *iop = "byte_";
+  //static int byte_pos = 0;
+  //char *labelname = strcat(iop, itoa(byte_pos));
+	//float init = 1.0;
+	//dfsan_label lbla = dfsan_create_label("input_char", init); 
+	//dfsan_set_label(lbla, buf, sizeof(char));
+  //byte_pos++;
 /*
 	dfsan_label lblb = dfsan_create_label("&buf", init); 
 	dfsan_set_label(lblb, &buf, sizeof(char));

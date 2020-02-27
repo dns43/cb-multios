@@ -280,13 +280,15 @@ int cgc_transmit_all(int fd, const void *buf, const cgc_size_t size) {
         sent += sent_now;
     }
     #ifdef LOG_PAYLOAD
+      /*
       int *fp;
-      //char buff[255]
-      fp = fopen("payload_cb.csv", "ab");
+      #//char buff[255]
+      #fp = fopen("payload_cb.csv", "ab");
       write(fileno(fp), buf);
       fwrite(buf, size, 1, fp);
       fprintf(fp,"%d",buf);
       close(fp);
+      */
    #endif
    return 0;
 }
@@ -328,7 +330,7 @@ void cgc_negotiate_type1(unsigned int ipmask, unsigned int regmask, unsigned int
 
 void cgc_negotiate_type2() {
    uint32_t povType = 2;
-   cgc_transmit_all(3, &povType, sizeof(&povType));
+   cgc_transmit_all(3, &povType, sizeof(&povType)); //passes ptr to povType, which gets transmitted as value, i.e. 00 00 00 02
    unsigned int type2vals[3];
    if (cgc_length_read(3, (unsigned char *)type2vals, sizeof(type2vals)) != sizeof(type2vals)) {
       cgc__terminate(0);

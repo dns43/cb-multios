@@ -121,14 +121,15 @@ class Throw(object):
             self.log("negotiating")
 
         data = self.read_all(pipefd, 4)
-        pov_type = struct.unpack('<I', data)[0]
+        self.log(data)
+        pov_type = struct.unpack('<L', data)[0]
         assert pov_type in [1, 2], 'invalid pov type'
 
         self.log("negotiation type: %d" % pov_type)
 
         if pov_type == 1:
             data = self.read_all(pipefd, 12)
-            ipmask, regmask, regnum = struct.unpack('<III', data)
+            ipmask, regmask, regnum = struct.unpack('<LLL', data)
             accept = True
 
             if self.count_bits_set(ipmask) < MIN_BITS:
@@ -150,7 +151,7 @@ class Throw(object):
                 self.log('type 1 masks: %08x %08x' % (ipmask, regmask))
                 self.log('type 1 pov: %08x %08x %d' % (ip, reg, regnum))
 
-                pov_values = struct.pack('<II', ip, reg)
+                pov_values = struct.pack('<LL', ip, reg)
                 os.write(pipefd, pov_values)
 
         if pov_type == 2:
@@ -159,7 +160,7 @@ class Throw(object):
             PAGE_BYTES = 4
  
             self.log("sending page location: %d, %d, %d" % (PAGE_ADDR, PAGE_LENGTH, PAGE_BYTES))
-            pov_location = struct.pack('<III', PAGE_ADDR, PAGE_LENGTH, PAGE_BYTES)
+            pov_location = struct.pack('<LLL', PAGE_ADDR, PAGE_LENGTH, PAGE_BYTES)
             os.write(pipefd, pov_location)
  
             if self.debug:

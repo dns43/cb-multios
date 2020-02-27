@@ -138,7 +138,7 @@ def chal_watcher(paths, procs, timeout, log):
                 log('register states - {}'.format(reg_str))
 
     # Final cleanup
-    clean_cores(paths, procs)
+    #clean_cores(paths, procs)
 
 
 def get_core_dump_regs(path, pid, log):
