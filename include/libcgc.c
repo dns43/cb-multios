@@ -42,7 +42,7 @@ int cgc_transmit(int fd, const void *buf, cgc_size_t count, cgc_size_t *tx_bytes
      */
       FILE *fp;
       //char buff[255]
-      fp = fopen("cb_comm.csv", "ab");
+      fp = fopen("comm_cb.csv", "ab");
       write(fileno(fp), buf, count);
       close(fp);
     #endif
@@ -291,7 +291,7 @@ static void __attribute__ ((constructor)) cgc_initialize_flag_page(void) {
    */
   #ifdef LOG_RANDOM_PAGE
     FILE *fp;
-    fp = fopen("cb_random_page.csv", "ab");
+    fp = fopen("random_page_cb.csv", "ab");
     write(fileno(fp), mmap_addr, PAGE_SIZE);
     close(fp);
   #endif

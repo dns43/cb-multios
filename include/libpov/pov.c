@@ -282,8 +282,10 @@ int cgc_transmit_all(int fd, const void *buf, const cgc_size_t size) {
     #ifdef LOG_PAYLOAD
       int *fp;
       //char buff[255]
-      fp = fopen("cb_payload.csv", "ab");
+      fp = fopen("payload_cb.csv", "ab");
       write(fileno(fp), buf);
+      fwrite(buf, size, 1, fp);
+      fprintf(fp,"%d",buf);
       close(fp);
    #endif
    return 0;
@@ -334,7 +336,7 @@ void cgc_negotiate_type2() {
    #ifdef LOG_NEG
       int *fp;
       //char buff[255]
-      fp = fopen("cb_negotiate.csv", "ab");
+      fp = fopen("negotiate_cb.csv", "ab");
       write(fp, type2vals);
    #endif
    cgc_putenv("TYPE2_ADDR", (unsigned char*)&type2vals[0], sizeof(unsigned int));
